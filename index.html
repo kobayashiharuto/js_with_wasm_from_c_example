@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WASM Example</title>
+</head>
+<body>
+    <script src="toUpperCase.js"></script>
+    <script>
+        // Emscriptenのglueコードがロードされた後に実行
+        Module.onRuntimeInitialized = async _ => {
+            let toUpperCase = Module.cwrap('toUpperCase', 'string', ['string']);
+            let result = toUpperCase("hello, wasm!");
+            console.log(result); // 出力: HELLO, WASM!
+        };
+    </script>
+
+    <script>
+      (async () => {
+        const memory = new WebAssembly.Memory({initial: 1});
+        const wasm = await WebAssembly.instantiateStreaming(fetch('add.wasm'), {
+          env: { memory }
+        });
+
+        const { add } = wasm.instance.exports;
+        console.log('Result of add(1, 2):', add(1, 2));
+      })();
+    </script>
+</body>
+</html>
